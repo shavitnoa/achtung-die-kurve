@@ -445,7 +445,7 @@ function draw() {
 
         // check collision
         // in robot mode use a longer front probe so it clears our own round head cap (radius playerSize/2) plus its antialiased halo
-        const frontProbe = players[player].powerup.robot != 0 ? hitboxSize * 1.5 : hitboxSize
+        const frontProbe = players[player].powerup.robot != 0 || players[player].robotCapGrace > 0 ? hitboxSize * 1.5 : hitboxSize
         const pxFront = Math.round(players[player].x + mathCos(players[player].dir) * frontProbe * players[player].powerup.size)
         const pyFront = Math.round(players[player].y + mathSin(players[player].dir) * frontProbe * players[player].powerup.size)
         const pxFront2 = Math.round(players[player].x + mathCos(players[player].dir))
