@@ -125,6 +125,8 @@ function init() {
         players[player].powerup = {} // contains powerup values
         players[player].powerup.size = 1
         players[player].powerup.robot = 0
+        players[player].lastRobot = 0 // robot state last frame, to detect the powerup expiring
+        players[player].robotCapGrace = 0 // frames to check only the front probe after robot expires (leftover round head cap sits on the side probes)
         players[player].powerup.reverse = 0
         players[player].powerup.speed = 1
         players[player].powerup.invisible = 0
@@ -364,6 +366,11 @@ function draw() {
             }
         }
 
+        // when the robot powerup expires, the last robot stroke leaves a round head cap
+        // under the curve-mode side/near probes; check only the front probe for a few frames
+        if (players[player].lastRobot != 0 && players[player].powerup.robot == 0) players[player].robotCapGrace = 4
+        players[player].lastRobot = players[player].powerup.robot
+
         // update player position
         prevPosX = players[player].x
         prevPosY = players[player].y
@@ -490,8 +497,15 @@ function draw() {
             if (players[player].powerup.invisible == 0) {
                 // don't check if invisible
                 if (players[player].powerup.robot == 0) {
-                    // check alpha value of pixels front, front2, left, right
-                    if (imgDataFrontTH[3] == 255 || imgDataFront2TH[3] == 255 || imgDataLeftTH[3] == 255 || imgDataRightTH[3] == 255) {
+                    if (players[player].robotCapGrace > 0) {
+                        players[player].robotCapGrace--
+                        // only the front probe: it already clears the leftover robot head cap
+                        if (imgDataFrontTH[3] == 255) {
+                            givePoints(players[player])
+                            continue
+                        }
+                    } else if (imgDataFrontTH[3] == 255 || imgDataFront2TH[3] == 255 || imgDataLeftTH[3] == 255 || imgDataRightTH[3] == 255) {
+                        // check alpha value of pixels front, front2, left, right
                         givePoints(players[player])
                         continue
                     }
